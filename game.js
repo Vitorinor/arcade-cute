@@ -3,23 +3,48 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+let playerImage = new Image();
+playerImage.src = 'player.png';  // Insert the player image file name here
+
 let player = {
   x: canvas.width / 2 - 25,
   y: canvas.height - 60,
   width: 50,
   height: 50,
-  color: 'white',
   speed: 5,
 };
 
 let fallingObjects = [];
 let score = 0;
 let highScore = 0;
+let difficulty = 1;
 let gameOver = false;
 
 // Initialize score display
 const scoreDisplay = document.getElementById('score');
 const highScoreDisplay = document.getElementById('highScore');
+
+// Background Images
+const backgrounds = [
+  'background1.jpg',
+  'background2.jpg',
+  'background3.jpg',
+];  // Add URLs or paths to your stock images
+
+// Lil Wayne Songs
+const songs = [
+  'lil_wayne_song1.mp3',
+  'lil_wayne_song2.mp3',
+  'lil_wayne_song3.mp3',
+];  // Add URLs or paths to Lil Wayne songs
+
+// Set a random background image
+canvas.style.backgroundImage = `url(${backgrounds[Math.floor(Math.random() * backgrounds.length)]})`;
+
+// Play a random song
+const audioElement = document.getElementById('backgroundMusic');
+audioElement.src = songs[Math.floor(Math.random() * songs.length)];
+audioElement.play();
 
 // Falling object generator
 function spawnFallingObject() {
@@ -30,7 +55,7 @@ function spawnFallingObject() {
     width: size,
     height: size,
     color: 'red',
-    speed: Math.random() * 3 + 2,
+    speed: Math.random() * 3 * difficulty + 2,
   };
   fallingObjects.push(obj);
 }
@@ -61,8 +86,7 @@ function updateFallingObjects() {
 
 // Draw player
 function drawPlayer() {
-  ctx.fillStyle = player.color;
-  ctx.fillRect(player.x, player.y, player.width, player.height);
+  ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
 }
 
 // Draw falling objects
@@ -97,6 +121,7 @@ window.addEventListener('keyup', (e) => {
 function resetGame() {
   fallingObjects = [];
   score = 0;
+  difficulty = 1;
   gameOver = false;
   player.x = canvas.width / 2 - player.width / 2;
 }
@@ -122,8 +147,11 @@ function gameLoop() {
       highScoreDisplay.textContent = highScore;
     }
 
-    // Spawn new falling objects over time
-    if (Math.random() < 0.03) {
+    // Increase difficulty over time
+    difficulty = Math.floor(score / 100) + 1;
+
+    // Spawn new falling objects with increasing difficulty
+    if (Math.random() < 0.03 * difficulty) {
       spawnFallingObject();
     }
 
